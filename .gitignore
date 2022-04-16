@@ -1,0 +1,4 @@
+db/*.db
+.env
+.vscode
+__debug_bin
