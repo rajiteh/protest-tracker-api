@@ -3,8 +3,9 @@ package api
 import (
 	"context"
 
-	"github.com/labstack/echo"
-	"github.com/pangpanglabs/echoswagger"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
+	"github.com/pangpanglabs/echoswagger/v2"
 )
 
 type APIService struct {
@@ -12,7 +13,11 @@ type APIService struct {
 
 func (bs *APIService) Serve(_ context.Context) error {
 	e := initServer().Echo()
+	// Middleware
+	e.Use(middleware.Logger())
+	e.Use(middleware.Recover())
 	e.HideBanner = true
+
 	return e.Start(":1323")
 }
 
@@ -35,11 +40,11 @@ func initServer() echoswagger.ApiRoot {
 	se.SetExternalDocs("Find out more about Swagger", "http://swagger.io").
 		SetResponseContentType("application/xml", "application/json").
 		SetUI(echoswagger.UISetting{DetachSpec: true, HideTop: true}).
-		SetScheme("https", "http")
+		SetScheme("http")
 
-	// PetController{}.Init(se.Group("pet", "/pet"))
-	// StoreController{}.Init(se.Group("store", "/store"))
-	// UserController{}.Init(se.Group("user", "/user"))
+	// Datasources
+	// Protests
 
+	ProtestController{}.Init(se.Group("protest", "/protest"))
 	return se
 }

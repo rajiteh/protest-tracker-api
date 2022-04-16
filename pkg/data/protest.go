@@ -35,3 +35,34 @@ func UpdateProtest(db *gorm.DB, protest *Protest) (int64, error) {
 	}).Create(protest)
 	return result.RowsAffected, result.Error
 }
+
+type ProtestFilters struct {
+	DatasourceSlug string
+	BeforeDate     *time.Time
+	AfterDate      *time.Time
+}
+
+func GetAllProtests(db *gorm.DB, filters ProtestFilters) ([]Protest, error) {
+	protests := []Protest{}
+
+	query := db.Joins("DataSource")
+	if filters.DatasourceSlug != "" {
+		query = query.Where("data_source_slug = ?", filters.DatasourceSlug)
+	}
+
+	if filters.BeforeDate != nil {
+		query = query.Where("date <= ?", filters.BeforeDate)
+	}
+
+	if filters.AfterDate != nil {
+		query = query.Where("date >= ?", filters.AfterDate)
+	}
+	result := query.Find(&protests)
+	return protests, result.Error
+}
+
+func GetProtestById(db *gorm.DB, id uint) (Protest, error) {
+	protest := Protest{}
+	result := db.Joins("DataSource").First(&protest, id)
+	return protest, result.Error
+}

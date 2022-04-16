@@ -20,25 +20,27 @@ var (
 )
 
 type DataSource struct {
-	gorm.Model
-	Slug        string `gorm:"uniqueIndex"`
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+	DeletedAt   gorm.DeletedAt `gorm:"index"`
+	Slug        string         `gorm:"primarykey"`
 	Description string
 	LastImport  time.Time
 }
 
 type Protest struct {
 	gorm.Model
-	ImportID     string     `gorm:"uniqueIndex"`
-	DataSource   DataSource `gorm:"foreignkey:DataSourceID"`
-	DataSourceID int
-	Lat          float64
-	Lng          float64
-	Location     string
-	Date         time.Time
-	Notes        string
-	Links        datatypes.JSON
-	Size         Size
-	EntryHash    string
+	ImportID       string     `gorm:"uniqueIndex"`
+	DataSource     DataSource `gorm:"foreignkey:DataSourceSlug"`
+	DataSourceSlug string
+	Lat            float64
+	Lng            float64
+	Location       string
+	Date           time.Time
+	Notes          string
+	Links          datatypes.JSON
+	Size           Size
+	EntryHash      string
 }
 
 func (p *Protest) BeforeSave(tx *gorm.DB) error {

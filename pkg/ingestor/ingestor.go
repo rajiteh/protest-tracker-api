@@ -10,6 +10,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/pkg/errors"
@@ -27,8 +28,12 @@ var watchdogSheetReadRange = "Protests!A2:K"
 
 var loc, _ = time.LoadLocation("Asia/Colombo")
 var coordSanityReg, _ = regexp.Compile(`[^0-9.]+`)
+var mu sync.Mutex
 
 func IngestFromAll() (count int64, err error) {
+	mu.Lock()
+	defer mu.Unlock()
+
 	ctx := context.Background()
 	db := data.GetDb()
 

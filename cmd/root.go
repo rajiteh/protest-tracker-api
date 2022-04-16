@@ -10,6 +10,7 @@ import (
 
 	"github.com/reliefeffortslk/protest-tracker-api/pkg/api"
 	"github.com/reliefeffortslk/protest-tracker-api/pkg/bot"
+	"github.com/reliefeffortslk/protest-tracker-api/pkg/cron"
 	"github.com/spf13/cobra"
 	"github.com/thejerf/suture/v4"
 )
@@ -27,6 +28,9 @@ var rootCmd = &cobra.Command{
 
 		apiService := new(api.APIService)
 		supervisor.Add(apiService)
+
+		cronService := new(cron.CronService)
+		supervisor.Add(cronService)
 
 		ctx, cancel := context.WithCancel(context.Background())
 		if err := supervisor.Serve(ctx); err != nil {
