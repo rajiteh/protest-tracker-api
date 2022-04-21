@@ -20,6 +20,10 @@ spec:
       labels:
         {{- include "protest-tracker-api.selectorLabels" . | nindent 8 }}
     spec:
+      strategy:
+        rollingUpdate:
+          maxUnavailable: 100
+          maxSurge: 0
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
