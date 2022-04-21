@@ -10,7 +10,11 @@ image:
   # Overrides the image tag whose default is the chart appVersion.
   tag: "protest-tracker-api"
 
-imagePullSecrets: []
+# kubectl create secret generic protest-tracker-api-env --from-env-file=.env
+envSecretName: protest-tracker-api-env
+
+imagePullSecrets:
+  - name: gitlab-pull-secret
 nameOverride: ""
 fullnameOverride: ""
 
