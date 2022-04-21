@@ -1,0 +1,16 @@
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "protest-tracker-api.fullname" . }}
+  labels:
+    {{- include "protest-tracker-api.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "protest-tracker-api.selectorLabels" . | nindent 4 }}
