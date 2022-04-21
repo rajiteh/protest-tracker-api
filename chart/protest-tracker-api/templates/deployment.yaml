@@ -32,7 +32,7 @@ spec:
           {{- with .Values.envSecretName }}
           envFrom:
           - secretRef:
-              name: {{ .Values.envSecretName }}
+              name: {{ . }}
           {{- end }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
