@@ -1,0 +1,36 @@
+---
+kind: pipeline
+type: kubernetes
+name: default
+steps:
+  - name: dockerx
+    image: thegeeklab/drone-docker-buildx:20.11.5
+    privileged: true
+    settings:
+      experimental: true
+      auto_tag: true
+      platforms:
+        - linux/amd64
+      username: rajiteh
+      password:
+        from_secret: gitlab_token
+      repo: registry.gitlab.com/rajiteh/orca_containers
+      registry: registry.gitlab.com
+      auto_tag_suffix: protest-tracker-api
+  - &kubeconfig_step
+    name: helm-deploy
+    image: alpine/helm:3.8.0
+    secrets: [orca_k3s_kubeconfig_b64]
+    environment:
+      KUBECONFIG: /tmp/kubeconfig.yaml
+      ORCA_K3S_KUBECONFIG_B64:
+        from_secret: orca_k3s_kubeconfig_b64
+    commands:
+      - &setup_kubeconfig_command echo "$${ORCA_K3S_KUBECONFIG_B64}" | base64 -d > $${KUBECONFIG}
+      - helm upgrade protest-tracker-api --install --create-namespace --namespace ls90-protest-tracker-api --debug chart/protest-tracker-api
+  - <<: *kubeconfig_step
+    name: deployment-rollout
+    image: bitnami/kubectl:1.22.7
+    commands:
+      - *setup_kubeconfig_command
+      - kubectl rollout restart --namespace ls90-protest-tracker-api deployment protest-tracker-api
