@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 
 	"github.com/reliefeffortslk/protest-tracker-api/pkg/configs"
+	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite" // Sqlite driver based on GGO
 
 	// "github.com/glebarez/sqlite" // Pure go SQLite driver, checkout https://github.com/glebarez/sqlite for details
@@ -34,6 +35,8 @@ func getDialector() gorm.Dialector {
 			path = filepath.Join(configs.ProjectRoot(), path)
 		}
 		return sqlite.Open(path)
+	case "postgres":
+		return postgres.Open(u.DSN)
 	default:
 		panic("unsupported database scheme")
 	}

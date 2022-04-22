@@ -3,6 +3,7 @@ package commands
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"math"
 	"sort"
@@ -60,30 +61,33 @@ func finalizeNearbyForm(b *tb.Bot) func(ctx context.Context, c tb.Context) (stri
 		log := log.WithContext(ctx)
 		log.Info("Finalizing form...")
 
-		// ctrl, ok := tbcomctl.ControllerFromCtx(ctx)
-		// if !ok {
-		// 	return "There was a problem", errors.New("something went wrong trying to process the form")
-		// }
-
-		// form := ctrl.Form()
-		// formData := form.Data(c.Sender())
-
-		coordinates := &tb.Location{
-			Lat: 6.918766,
-			Lng: 79.862305,
+		ctrl, ok := tbcomctl.ControllerFromCtx(ctx)
+		if !ok {
+			return "There was a problem", errors.New("something went wrong trying to process the form")
 		}
-		// if err := json.Unmarshal([]byte(formData["location_pin"]), coordinates); err != nil {
-		// 	log.Error("Error while unmarshaling location_pin: " + err.Error())
-		// 	return "", err
-		// }
+
+		form := ctrl.Form()
+		formData := form.Data(c.Sender())
+
+		coordinates := &tb.Location{}
+
+		if err := json.Unmarshal([]byte(formData["location_pin"]), coordinates); err != nil {
+			log.Error("Error while unmarshaling location_pin: " + err.Error())
+			return "", err
+		}
 		loc, err := time.LoadLocation("Asia/Colombo")
 		if err != nil {
 			log.Error("Error while getting location: " + err.Error())
 			return "", err
 		}
 
-		// now := time.Now()
-		now := time.Date(2022, 4, 8, 1, 2, 3, 4, loc)
+		// coordinates = &tb.Location{
+		// 	Lat: 6.918766,
+		// 	Lng: 79.862305,
+		// }
+
+		now := time.Now()
+		// now := time.Date(2022, 4, 8, 1, 2, 3, 4, loc)
 		midnight := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, loc)
 		tomorrowMidnight := midnight.AddDate(0, 0, 2)
 		db := data.GetDb()

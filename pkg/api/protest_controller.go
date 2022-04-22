@@ -50,7 +50,7 @@ func (c ProtestController) Init(g echoswagger.ApiGroup) {
 	// pet := Pet{Name: "doggie"}
 
 	sampleProtest := ProtestResponse{
-		DataSource: DataSourceResponse{
+		DataSource: DataSourceSummary{
 			Reference:   "2",
 			Name:        "datasourceName",
 			Attribution: "datasource attribution",
@@ -149,7 +149,7 @@ func (c ProtestController) Init(g echoswagger.ApiGroup) {
 	// 	SetSecurityWithScope(security)
 }
 
-type DataSourceResponse struct {
+type DataSourceSummary struct {
 	Reference     string `json:"reference"`
 	Name          string
 	Attribution   string
@@ -157,14 +157,14 @@ type DataSourceResponse struct {
 }
 
 type ProtestResponse struct {
-	DataSource DataSourceResponse `json:"dataSource"`
-	Lat        float64            `json:"lat"`
-	Lng        float64            `json:"lng"`
-	Location   string             `json:"location"`
-	Date       string             `json:"date"`
-	Notes      string             `json:"notes"`
-	Links      []string           `json:"links"`
-	Size       string             `json:"size"`
+	DataSource DataSourceSummary `json:"dataSource"`
+	Lat        float64           `json:"lat"`
+	Lng        float64           `json:"lng"`
+	Location   string            `json:"location"`
+	Date       string            `json:"date"`
+	Notes      string            `json:"notes"`
+	Links      []string          `json:"links"`
+	Size       string            `json:"size"`
 }
 
 func protestToResponseObject(protest *data.Protest) ProtestResponse {
@@ -178,7 +178,7 @@ func protestToResponseObject(protest *data.Protest) ProtestResponse {
 	}
 
 	response := ProtestResponse{
-		DataSource: DataSourceResponse{
+		DataSource: DataSourceSummary{
 			Reference:     protest.ImportID,
 			Name:          protest.DataSource.Slug,
 			Attribution:   protest.DataSource.Description,
@@ -187,7 +187,7 @@ func protestToResponseObject(protest *data.Protest) ProtestResponse {
 		Lat:      protest.Lat,
 		Lng:      protest.Lng,
 		Location: protest.Location,
-		Date:     protest.Date.Format("02-01-2006"),
+		Date:     protest.Date.Format("2006-01-02"),
 		Notes:    protest.Notes,
 		Links:    links,
 		Size:     string(protest.Size),

@@ -2,10 +2,15 @@ package api
 
 import (
 	"context"
+	"fmt"
+	"net/http"
+	"os"
+	"strings"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/pangpanglabs/echoswagger/v2"
+	"github.com/reliefeffortslk/protest-tracker-api/pkg/ingestor"
 )
 
 type APIService struct {
@@ -45,6 +50,25 @@ func initServer() echoswagger.ApiRoot {
 	// Datasources
 	// Protests
 
+	type IngestResponse struct {
+		Count int64 `json:"count"`
+	}
+
+	se.POST("/ingest", func(c echo.Context) error {
+		ingestToken := strings.TrimSpace(os.Getenv("HTTP_INGEST_TOKEN_SECRET"))
+		if len(ingestToken) == 0 {
+			return fmt.Errorf("HTTP_INGEST_TOKEN_SECRET was not set")
+		}
+		count, err := ingestor.IngestFromAll()
+		if err != nil {
+			return err
+		}
+		resp := IngestResponse{
+			Count: count,
+		}
+
+		return c.JSON(http.StatusOK, resp)
+	})
 	ProtestController{}.Init(se.Group("protest", "/protest"))
 	return se
 }
