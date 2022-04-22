@@ -45,7 +45,7 @@ func initServer() echoswagger.ApiRoot {
 	se.SetExternalDocs("Find out more about Swagger", "http://swagger.io").
 		SetResponseContentType("application/xml", "application/json").
 		SetUI(echoswagger.UISetting{DetachSpec: true, HideTop: true}).
-		SetScheme("http")
+		SetScheme("https", "http")
 
 	// Datasources
 	// Protests

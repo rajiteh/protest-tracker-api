@@ -10,7 +10,7 @@ image:
   # Overrides the image tag whose default is the chart appVersion.
   tag: "protest-tracker-api"
 
-# kubectl create secret generic protest-tracker-api-env --namespace ls90-protest-tracker-api  --from-env-file=.env
+# kubectl create secret generic protest-tracker-api-env --namespace ls90-protest-tracker-api  --from-env-file=.env.production
 envSecretName: protest-tracker-api-env
 
 imagePullSecrets:
