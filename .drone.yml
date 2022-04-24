@@ -52,14 +52,14 @@ steps:
     commands:
     - >
       skopeo copy 
-        --src-creds=${GITLAB_USER}:${GITLAB_TOKEN}
-        --dest-creds=${GCP_DOCKER_USER}:${GCP_SA_JSON_B64}
-         docker://${SRC_IMAGE_REPO}:${SRC_IMAGE_TAG}
-         docker://${DST_IMAGE_REPO}:${DST_IMAGE_TAG}
+        --src-creds=$${GITLAB_USER}:$${GITLAB_TOKEN}
+        --dest-creds=$${GCP_DOCKER_USER}:$${GCP_SA_JSON_B64}
+         docker://$${SRC_IMAGE_REPO}:$${SRC_IMAGE_TAG}
+         docker://$${DST_IMAGE_REPO}:$${DST_IMAGE_TAG}
     - >
       skopeo inspect
-        --creds=${GCP_DOCKER_USER}:${GCP_SA_JSON_B64} docker://${DST_IMAGE_REPO}:${DST_IMAGE_TAG}
-        --format="${DST_IMAGE_REPO}:${DST_IMAGE_TAG}@{{.Digest}}" > cloud_run_image.env
+        --creds=$${GCP_DOCKER_USER}:$${GCP_SA_JSON_B64} docker://$${DST_IMAGE_REPO}:$${DST_IMAGE_TAG}
+        --format="$${DST_IMAGE_REPO}:$${DST_IMAGE_TAG}@{{.Digest}}" > cloud_run_image.env
 
   - name: cloud-run-deploy
     image: viant/drone-gcloud
