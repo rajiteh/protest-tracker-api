@@ -11,12 +11,14 @@ steps:
       auto_tag: true
       platforms:
         - linux/amd64
-      username: rajiteh
-      password:
+      username: &gtlabUser 
+        from_secret: gitlab_user
+      password: &gitlabToken
         from_secret: gitlab_token
-      repo: registry.gitlab.com/rajiteh/orca_containers
+      repo:  &gitlabImage 
+        from_secret: gitlab_image_repo
       registry: registry.gitlab.com
-      auto_tag_suffix: protest-tracker-api
+      auto_tag_suffix: &gitlabTag protest-tracker-api
   - &kubeconfig_step
     name: helm-deploy
     image: alpine/helm:3.8.0
@@ -34,3 +36,35 @@ steps:
     commands:
       - *setup_kubeconfig_command
       - kubectl rollout restart --namespace ls90-protest-tracker-api deployment protest-tracker-api
+  - name: sync-image-to-artifact-registry
+    image: quay.io/skopeo/stable:v1.7.0
+    environment:
+      GCP_DOCKER_USER: _json_key_base64
+      GCP_SA_JSON_B64:
+        from_secret: protest_tracker_ci_gcp_sa_b64
+      GITLAB_TOKEN: *gitlabToken
+      GITLAB_USER: *gtlabUser
+      SRC_IMAGE_REPO: *gitlabImage
+      SRC_IMAGE_TAG: *gitlabTag
+      DST_IMAGE_REPO: 
+        from_secret: artifact_registry_repo
+      DST_IMAGE_TAG: protest-tracker-api
+    commands:
+    - >
+      skopeo copy 
+        --src-creds=${GITLAB_USER}:${GITLAB_TOKEN}
+        --dest-creds=${GCP_DOCKER_USER}:${GCP_SA_JSON_B64}
+         docker://${SRC_IMAGE_REPO}:${SRC_IMAGE_TAG}
+         docker://${DST_IMAGE_REPO}:${DST_IMAGE_TAG}
+    - >
+      skopeo inspect
+        --creds=${GCP_DOCKER_USER}:${GCP_SA_JSON_B64} docker://${DST_IMAGE_REPO}:${DST_IMAGE_TAG}
+        --format="${DST_IMAGE_REPO}:${DST_IMAGE_TAG}@{{.Digest}}" > cloud_run_image.env
+
+  - name: cloud-run-deploy
+    image: viant/drone-gcloud
+    settings:
+      base64_key:
+        from_secret: protest_tracker_ci_gcp_sa_b64
+      script:
+        - gcloud run services update --image "$(cat cloud_run_image.env)" protest-tracker-api

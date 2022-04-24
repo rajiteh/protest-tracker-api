@@ -1,0 +1,8 @@
+db/*.db
+.env*
+!.env.sample
+.vscode
+__debug_bin
+service.compiled.yaml
+Makefile
+service_template.yaml

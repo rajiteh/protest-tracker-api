@@ -3,3 +3,4 @@ db/*.db
 !.env.sample
 .vscode
 __debug_bin
+service.compiled.yaml

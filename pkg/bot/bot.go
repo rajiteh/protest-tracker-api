@@ -23,6 +23,7 @@ type BotService struct {
 }
 
 func (bs *BotService) Serve(_ context.Context) error {
+	log.Info("Creating BotService.")
 	createBot()
 	return nil
 }

@@ -16,6 +16,13 @@ import (
 )
 
 // rootCmd represents the base command when called without any subcommands
+
+var (
+	disableBot  = os.Getenv("DISABLE_BOTS") != ""
+	disableAPI  = os.Getenv("DISABLE_API") != ""
+	disableCron = os.Getenv("DISABLE_CRON") != ""
+)
+
 var rootCmd = &cobra.Command{
 	Use:   "protest-tracker",
 	Short: "telegram bot for protest-tracker",
@@ -23,14 +30,20 @@ var rootCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		supervisor := suture.NewSimple("Supervisor")
 
-		botService := new(bot.BotService)
-		supervisor.Add(botService)
+		if !disableBot {
+			botService := new(bot.BotService)
+			supervisor.Add(botService)
+		}
 
-		apiService := new(api.APIService)
-		supervisor.Add(apiService)
+		if !disableAPI {
+			apiService := new(api.APIService)
+			supervisor.Add(apiService)
+		}
 
-		cronService := new(cron.CronService)
-		supervisor.Add(cronService)
+		if !disableCron {
+			cronService := new(cron.CronService)
+			supervisor.Add(cronService)
+		}
 
 		ctx, cancel := context.WithCancel(context.Background())
 		if err := supervisor.Serve(ctx); err != nil {

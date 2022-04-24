@@ -1,0 +1,39 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  labels:
+    cloud.googleapis.com/location: us-central1
+  name: protest-tracker-api
+spec:
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/maxScale: '1'
+        run.googleapis.com/cloudsql-instances: healthy-clock-335703:us-central1:tokensense
+        run.googleapis.com/cpu-throttling: 'true'
+    spec:
+      containerConcurrency: 50
+      containers:
+      - env: []
+        image: "<CHANGEME>"
+        ports:
+        - containerPort: 1323
+          name: http1
+        resources:
+          limits:
+            cpu: '1'
+            memory: 1Gi
+        volumeMounts:
+        - mountPath: /
+          name: protest-tracker-dotenv
+      volumes:
+      - name: protest-tracker-dotenv
+        secret:
+          items:
+          - key: latest
+            path: .env
+          secretName: protest-tracker-dotenv
+      timeoutSeconds: 30
+  traffic:
+  - latestRevision: true
+    percent: 100
